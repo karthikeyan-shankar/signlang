@@ -36,7 +36,8 @@ export function normalizeLandmarks(landmarks) {
 
 /**
  * Calculates the average Euclidean distance between two landmark arrays.
- * Computes strictly in the 2D Silhouette Plane (x and y axes), ignoring noisy z-depth coordinates.
+ * Evaluates both normal and horizontally reflected versions to support left/right hands and mirroring.
+ * Computes strictly in the 2D Silhouette Plane (x and y axes) for maximum noise-free precision.
  * Returns a similarity score between 0.0 and 1.0.
  */
 export function calculateSimilarity(liveNormalized, templateLandmarks) {
@@ -48,22 +49,28 @@ export function calculateSimilarity(liveNormalized, templateLandmarks) {
   const templateNormalized = normalizeLandmarks(templateLandmarks);
   if (!templateNormalized) return 0;
 
-  let totalDistance = 0;
+  let totalDistanceNormal = 0;
+  let totalDistanceFlipped = 0;
 
   for (let i = 0; i < 21; i++) {
     const live = liveNormalized[i];
     const template = templateNormalized[i];
 
-    // Compute strictly in the 2D plane (x & y coordinates).
-    // The z coordinate represents depth relative to the wrist, which is highly noisy
-    // and varies wildly based on camera angle and hand tilt.
-    const dx = live.x - template.x;
+    // Y coordinate distance remains identical
     const dy = live.y - template.y;
 
-    totalDistance += Math.sqrt(dx * dx + dy * dy);
+    // Normal X coordinate distance
+    const dxNormal = live.x - template.x;
+    totalDistanceNormal += Math.sqrt(dxNormal * dxNormal + dy * dy);
+
+    // Horizontally Flipped X coordinate distance (-template.x)
+    // This allows seamless support for both Left & Right hands and browser mirroring!
+    const dxFlipped = live.x - (-template.x);
+    totalDistanceFlipped += Math.sqrt(dxFlipped * dxFlipped + dy * dy);
   }
 
-  const averageDistance = totalDistance / 21;
+  // Choose the best match (minimum distance) between normal and mirrored layouts
+  const averageDistance = Math.min(totalDistanceNormal, totalDistanceFlipped) / 21;
   
   // Convert 2D average distance into a percentage score.
   // In 2D space, a strong match has an average coordinate deviation under 0.18.
