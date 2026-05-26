@@ -83,49 +83,49 @@ export default function SignClassifier({ landmarks, onSignDetected }) {
   };
 
   return (
-    <div className="bg-white/5 rounded-2xl p-5 border border-white/10 backdrop-blur-md shadow-xl flex flex-col gap-4">
+    <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-white/10 pb-3">
-        <h3 className="text-white font-bold text-base flex items-center gap-2">
+      <div className="classifier-title" style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.75rem' }}>
+        <h3 className="tips-title" style={{ color: 'white', margin: 0, fontSize: '15px' }}>
           🧠 Kinnova ISL Engine
         </h3>
-        <span className="text-[#00D4AA] text-xs font-semibold bg-[#00D4AA]/10 px-2.5 py-1 rounded-full border border-[#00D4AA]/20">
+        <span className="badge-status" style={{ fontSize: '9px', padding: '4px 10px', background: 'var(--accent-teal-glass)' }}>
           AI Classifier Ready
         </span>
       </div>
 
       {/* Live Classifier Feedback Screen */}
-      <div className="bg-black/35 rounded-xl p-5 border border-white/5 flex flex-col items-center justify-center min-h-[140px] text-center">
+      <div className="classifier-screen">
         {currentMatch ? (
-          <div className="w-full flex flex-col items-center">
-            <span className="text-xs text-gray-400 font-semibold tracking-wider uppercase mb-1">
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <span style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>
               Live Sign Detected
             </span>
-            <div className="text-3xl font-extrabold text-[#00D4AA] mb-3 animate-pulse">
+            <div style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--accent-teal)', marginBottom: '0.75rem', textShadow: '0 0 10px rgba(0, 212, 170, 0.2)' }}>
               {currentMatch.name}
             </div>
 
             {/* Confidence Slider Bar */}
-            <div className="w-full max-w-[240px] bg-white/10 rounded-full h-2 mb-2 overflow-hidden">
+            <div className="confidence-bar-wrap">
               <div
-                className="bg-gradient-to-r from-[#6C3FC5] to-[#00D4AA] h-full rounded-full transition-all duration-150"
+                className="confidence-bar"
                 style={{ width: `${currentMatch.confidence * 100}%` }}
               />
             </div>
-            <p className="text-gray-400 text-xs">
+            <p style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
               Confidence Score: {Math.round(currentMatch.confidence * 100)}%
             </p>
-            <p className="text-[#4A90E2] text-xs font-medium mt-1 animate-pulse">
+            <p style={{ fontSize: '10px', color: 'var(--accent-blue)', marginTop: '0.25rem', fontWeight: '500' }}>
               Hold pose to translate...
             </p>
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-2">
-            <span className="text-5xl animate-pulse">🤟</span>
-            <p className="text-gray-400 text-sm font-medium">
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🤟</span>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: '500' }}>
               Show your hands to the camera
             </p>
-            <p className="text-gray-500 text-xs max-w-xs">
+            <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '0.25rem', maxWidth: '200px' }}>
               Align your gestures to match the dictionary items listed below.
             </p>
           </div>
@@ -134,44 +134,45 @@ export default function SignClassifier({ landmarks, onSignDetected }) {
 
       {/* Confirmed Translation Flash Alert */}
       {confirmedWord && (
-        <div className="bg-gradient-to-r from-[#6C3FC5]/30 to-[#00D4AA]/30 border border-[#00D4AA]/50 rounded-xl p-3 text-center animate-bounce">
-          <p className="text-[#00D4AA] text-sm font-bold">
-            Translated: <span className="text-white underline">{confirmedWord}</span>
+        <div className="confirm-alert">
+          <p style={{ fontSize: '12px', fontWeight: '700', color: 'var(--accent-teal)' }}>
+            Translated: <span style={{ color: 'white', textDecoration: 'underline' }}>{confirmedWord}</span>
           </p>
         </div>
       )}
 
       {/* Dictionary Profiles (Visual Matching Progress) */}
-      <div className="space-y-3">
-        <h4 className="text-xs text-gray-400 font-bold uppercase tracking-wider">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <h4 className="caption-label">
           ISL Dictionary Profiles
         </h4>
-        <div className="grid grid-cols-1 gap-2">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {Object.keys(ISL_DICTIONARY).map((key) => {
             const label = ISL_DICTIONARY[key].name;
             const score = similarityScores[key] || 0;
             const percent = Math.round(score * 100);
             
             return (
-              <div
-                key={key}
-                className="bg-white/5 border border-white/5 rounded-xl p-3 flex items-center justify-between transition hover:bg-white/10"
-              >
-                <span className="text-white text-xs font-semibold">{label}</span>
-                <div className="flex items-center gap-3">
+              <div key={key} className="score-row">
+                <span style={{ color: 'white', fontSize: '12px', fontWeight: '600' }}>{label}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   {/* Progress Indicator */}
-                  <div className="w-20 bg-white/10 rounded-full h-1.5 overflow-hidden hidden sm:block">
+                  <div className="progress-track">
                     <div
-                      className={`h-full rounded-full transition-all duration-300 ${
-                        score >= CONFIDENCE_THRESHOLD ? "bg-[#00D4AA]" : "bg-[#6C3FC5]"
+                      className={`progress-fill ${
+                        score >= CONFIDENCE_THRESHOLD ? "progress-fill-teal" : "progress-fill-violet"
                       }`}
                       style={{ width: `${percent}%` }}
                     />
                   </div>
                   <span
-                    className={`text-xs font-mono font-bold ${
-                      score >= CONFIDENCE_THRESHOLD ? "text-[#00D4AA]" : "text-gray-400"
-                    }`}
+                    className="mono"
+                    style={{ 
+                      fontSize: '11px', 
+                      fontFamily: 'monospace', 
+                      fontWeight: 'bold',
+                      color: score >= CONFIDENCE_THRESHOLD ? 'var(--accent-teal)' : 'var(--text-secondary)'
+                    }}
                   >
                     {percent}%
                   </span>

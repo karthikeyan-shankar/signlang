@@ -52,24 +52,24 @@ export default function VoicePlayback({ text }) {
   }, [text, selectedVoice, volume, voices]);
 
   return (
-    <div className="bg-white/5 rounded-2xl p-5 border border-white/10 backdrop-blur-md shadow-xl flex flex-col gap-4">
+    <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {/* Title */}
-      <div className="border-b border-white/10 pb-3">
-        <h4 className="text-white font-bold text-sm flex items-center gap-2">
+      <div style={{ borderBottom: '1px solid var(--border-glass)', paddingBottom: '0.75rem' }}>
+        <h4 className="tips-title" style={{ color: 'white', margin: 0, fontSize: '14px' }}>
           🔊 Audio Synthesis
         </h4>
       </div>
 
       {/* Voice Selector Dropdown */}
-      <div className="flex flex-col gap-1.5">
-        <label className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <label className="caption-label">
           Feedback Voice Profile
         </label>
         {voices.length > 0 ? (
           <select
             value={selectedVoice}
             onChange={(e) => setSelectedVoice(e.target.value)}
-            className="w-full bg-[#0D0D2B]/90 border border-white/10 text-white rounded-xl px-3 py-2.5 text-xs focus:border-[#6C3FC5] focus:outline-none transition cursor-pointer"
+            style={{ width: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border-glass)', color: 'white', borderRadius: '0.75rem', padding: '0.75rem', fontSize: '12px', outline: 'none', cursor: 'pointer' }}
           >
             {voices.map((voice) => (
               <option key={voice.name} value={voice.name}>
@@ -78,19 +78,19 @@ export default function VoicePlayback({ text }) {
             ))}
           </select>
         ) : (
-          <div className="bg-[#0D0D2B]/90 border border-white/5 text-gray-400 rounded-xl p-3 text-xs text-center animate-pulse">
+          <div style={{ width: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border-glass)', color: 'var(--text-secondary)', borderRadius: '0.75rem', padding: '0.75rem', fontSize: '12px', textAlign: 'center' }}>
             Loading System Voices...
           </div>
         )}
       </div>
 
       {/* Volume slider */}
-      <div className="flex flex-col gap-1.5">
-        <div className="flex justify-between items-center">
-          <label className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <label className="caption-label">
             Volume Output
           </label>
-          <span className="text-[10px] text-gray-300 font-bold">
+          <span style={{ fontSize: '10px', color: 'white', fontWeight: 'bold' }}>
             {Math.round(volume * 100)}%
           </span>
         </div>
@@ -101,11 +101,11 @@ export default function VoicePlayback({ text }) {
           step="0.1"
           value={volume}
           onChange={(e) => setVolume(parseFloat(e.target.value))}
-          className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#00D4AA]"
+          className="range-slider"
         />
       </div>
 
-      <p className="text-gray-500 text-[10px] text-center leading-normal">
+      <p style={{ fontSize: '10px', color: 'var(--text-muted)', textAlign: 'center', lineHeight: '1.4' }}>
         Synthesized voice outputs are spoken instantly on the recruiter's system for accessible communication.
       </p>
     </div>
