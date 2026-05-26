@@ -2,8 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { ISL_DICTIONARY } from "../utils/islDictionary";
 import { normalizeLandmarks, calculateSimilarity } from "../utils/normalizeHand";
 
-const CONFIDENCE_THRESHOLD = 0.90; // 90% match threshold
-const CONFIRMATION_TIME = 1200;    // 1.2 seconds hold-time
+const CONFIDENCE_THRESHOLD = 0.85; // 85% match threshold for high responsiveness
+const CONFIRMATION_TIME = 900;    // 900ms hold-time for quick confirmation
 
 export default function SignClassifier({ landmarks, onSignDetected }) {
   const [currentMatch, setCurrentMatch] = useState(null);

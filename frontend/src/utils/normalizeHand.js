@@ -28,14 +28,15 @@ export function normalizeLandmarks(landmarks) {
 
   // 3. Scale all coordinates relative to palm size
   return translated.map(lm => ({
-    x: lm.x / scale,
-    y: lm.y / scale,
-    z: lm.z / scale
+    x: translated.indexOf(lm) === 0 ? 0 : lm.x / scale,
+    y: translated.indexOf(lm) === 0 ? 0 : lm.y / scale,
+    z: translated.indexOf(lm) === 0 ? 0 : lm.z / scale
   }));
 }
 
 /**
- * Calculates the average Euclidean distance between two normalized landmark arrays.
+ * Calculates the average Euclidean distance between two landmark arrays.
+ * Pre-normalizes the template to guarantee they are compared on the exact same mathematical scale.
  * Returns a similarity score between 0.0 and 1.0.
  */
 export function calculateSimilarity(liveNormalized, templateLandmarks) {
@@ -43,11 +44,15 @@ export function calculateSimilarity(liveNormalized, templateLandmarks) {
     return 0;
   }
 
+  // Double-normalize both arrays to ensure identical scaling and origin translation
+  const templateNormalized = normalizeLandmarks(templateLandmarks);
+  if (!templateNormalized) return 0;
+
   let totalDistance = 0;
 
   for (let i = 0; i < 21; i++) {
     const live = liveNormalized[i];
-    const template = templateLandmarks[i];
+    const template = templateNormalized[i];
 
     const dx = live.x - template.x;
     const dy = live.y - template.y;
@@ -59,7 +64,8 @@ export function calculateSimilarity(liveNormalized, templateLandmarks) {
   const averageDistance = totalDistance / 21;
   
   // Convert average distance into a percentage score.
-  // Generally, an average distance under 0.2 is a very strong match.
-  const similarity = Math.max(0, 1 - (averageDistance / 0.45));
+  // High quality matches have an average distance of 0.15 - 0.25.
+  // Using 0.70 as a normalized divisor ensures smooth, natural grading.
+  const similarity = Math.max(0, 1 - (averageDistance / 0.70));
   return similarity;
 }
