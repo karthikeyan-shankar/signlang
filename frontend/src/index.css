@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* HSL Color System */
+  --bg-primary: #080816;
+  --bg-secondary: #0D0D2B;
+  --accent-violet: #6C3FC5;
+  --accent-blue: #4A90E2;
+  --accent-teal: #00D4AA;
+  
+  --text-primary: #FFFFFF;
+  --text-secondary: #9CA3AF;
+  --text-muted: #6B7280;
+  
+  --border-glow: rgba(108, 63, 197, 0.2);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(108, 63, 197, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(0, 212, 170, 0.12) 0px, transparent 50%);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Typography styles */
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Custom Webkit scrollbar for premium aesthetics */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-secondary);
+  border: 2px solid var(--bg-primary);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-violet);
+}
+
+/* Utilities for Layout */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Micro-animations */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(0, 212, 170, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(0, 212, 170, 0.6);
+  }
+}
+
+.glow-active {
+  animation: pulse-glow 2s infinite ease-in-out;
+}
