@@ -95,7 +95,7 @@ export default function HandDetector({ onLandmarksDetected }) {
     // Draw hand landmarks
     if (results.multiHandLandmarks) {
       for (const landmarks of results.multiHandLandmarks) {
-        // Draw connection lines (Electric Violet / Royal Blue)
+        // Draw connection lines (Electric Blue)
         drawConnections(ctx, landmarks);
 
         // Draw joint points (Neon Cyan)
@@ -145,45 +145,110 @@ export default function HandDetector({ onLandmarksDetected }) {
   };
 
   return (
-    <div className="relative w-full aspect-video bg-black/60 rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
-      {/* Video element (hidden) */}
+    <div 
+      style={{ 
+        position: 'relative', 
+        width: '100%', 
+        aspectRatio: '16/9', 
+        backgroundColor: 'rgba(0, 0, 0, 0.6)', 
+        borderRadius: '1.25rem', 
+        overflow: 'hidden', 
+        border: '1px solid rgba(255, 255, 255, 0.08)', 
+        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.4)' 
+      }}
+    >
+      {/* Video element - FORCED display: none to prevent double rendering */}
       <video
         ref={videoRef}
-        className="hidden"
+        style={{ display: 'none' }}
         playsInline
         muted
       />
 
-      {/* Canvas displaying neon hand overlays */}
+      {/* Canvas displaying neon hand overlays - scaleX(-1) mirrors camera view correctly */}
       <canvas
         ref={canvasRef}
         width={640}
         height={480}
-        className="w-full h-full object-cover scale-x-[-1]"
+        style={{ 
+          width: '100%', 
+          height: '100%', 
+          objectFit: 'cover', 
+          transform: 'scaleX(-1)' 
+        }}
       />
 
       {/* Loading overlay */}
       {isLoading && (
-        <div className="absolute inset-0 bg-[#0D0D2B]/95 flex flex-col items-center justify-center">
-          <div className="text-6xl mb-4 animate-bounce">📷</div>
-          <h4 className="text-white font-bold text-lg">Initialising Camera...</h4>
-          <p className="text-gray-400 text-sm mt-1">Please allow camera permissions when prompted.</p>
+        <div 
+          style={{ 
+            position: 'absolute', 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            bottom: 0, 
+            backgroundColor: 'rgba(13, 13, 43, 0.95)', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            zIndex: 10 
+          }}
+        >
+          <div style={{ fontSize: '3rem', marginBottom: '1rem', animation: 'bounce 1s infinite' }}>📷</div>
+          <h4 style={{ color: 'white', fontWeight: 'bold', fontSize: '18px' }}>Initialising Camera...</h4>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '13px', marginTop: '4px' }}>Please allow camera permissions when prompted.</p>
         </div>
       )}
 
       {/* Error overlay */}
       {error && (
-        <div className="absolute inset-0 bg-[#0D0D2B]/95 flex flex-col items-center justify-center p-6 text-center">
-          <div className="text-6xl mb-4">⚠️</div>
-          <h4 className="text-red-400 font-bold text-lg">System Alert</h4>
-          <p className="text-gray-300 text-sm mt-2 max-w-sm">{error}</p>
+        <div 
+          style={{ 
+            position: 'absolute', 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            bottom: 0, 
+            backgroundColor: 'rgba(13, 13, 43, 0.95)', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            padding: '1.5rem', 
+            textAlign: 'center', 
+            zIndex: 10 
+          }}
+        >
+          <div style={{ fontSize: '3.5rem', marginBottom: '1rem' }}>⚠️</div>
+          <h4 style={{ color: '#F87171', fontWeight: 'bold', fontSize: '18px' }}>System Alert</h4>
+          <p style={{ color: 'white', fontSize: '13px', marginTop: '8px', maxWidth: '320px' }}>{error}</p>
         </div>
       )}
 
       {/* Active Tracking Status Badge */}
       {isDetecting && !isLoading && (
-        <div className="absolute top-4 left-4 bg-[#00D4AA]/20 text-[#00D4AA] px-4 py-1.5 rounded-full text-xs font-bold border border-[#00D4AA]/30 flex items-center gap-2 backdrop-blur-md">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#00D4AA] animate-pulse" />
+        <div 
+          style={{ 
+            position: 'absolute', 
+            top: '1rem', 
+            left: '1rem', 
+            backgroundColor: 'rgba(0, 212, 170, 0.15)', 
+            color: '#00D4AA', 
+            padding: '0.4rem 1rem', 
+            borderRadius: '50px', 
+            fontSize: '11px', 
+            fontWeight: 'bold', 
+            border: '1px solid rgba(0, 212, 170, 0.25)', 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '0.5rem', 
+            backdropFilter: 'blur(8px)', 
+            WebkitBackdropFilter: 'blur(8px)', 
+            zIndex: 5 
+          }}
+        >
+          <span className="status-dot" style={{ width: '8px', height: '8px', boxShadow: '0 0 8px #00D4AA' }} />
           Camera Feed & Gesture Tracking Active
         </div>
       )}
