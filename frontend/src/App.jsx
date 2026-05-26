@@ -8,7 +8,7 @@ export default function App() {
   const [landmarks, setLandmarks] = useState(null);
   const [activeCaption, setActiveCaption] = useState("");
   const [sentenceList, setSentenceList] = useState([]);
-  const [lastSpokenText, setLastSpokenText] = useState("");
+  const [speechPayload, setSpeechPayload] = useState(null);
   const [copied, setCopied] = useState(false);
 
   const handleSignDetected = (signName) => {
@@ -27,8 +27,8 @@ export default function App() {
     } else {
       // Concat to active word
       setActiveCaption(prev => prev + cleanWord);
-      // Trigger voice synthesized playback immediately on each character/sign
-      setLastSpokenText(cleanWord);
+      // Trigger voice synthesized playback with a unique timestamp to bypass React caching
+      setSpeechPayload({ text: cleanWord, timestamp: Date.now() });
     }
   };
 
@@ -107,7 +107,7 @@ export default function App() {
           {/* Left Column: Live Feed and Audio Synthesis controls */}
           <div className="dashboard-left">
             <HandDetector onLandmarksDetected={(lm) => setLandmarks(lm)} />
-            <VoicePlayback text={lastSpokenText} />
+            <VoicePlayback payload={speechPayload} />
           </div>
 
           {/* Right Column: AI Classifier Panel */}
