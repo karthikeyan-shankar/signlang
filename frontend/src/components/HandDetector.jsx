@@ -38,10 +38,13 @@ export default function HandDetector({ onLandmarksDetected }) {
 
   const loadMediaPipe = async () => {
     try {
-      const { Hands } = await import("@mediapipe/hands");
-      const { Camera } = await import("@mediapipe/camera_utils");
+      // Access MediaPipe from global window populated by high-reliability CDNs
+      const MP = window;
+      if (!MP.Hands || !MP.Camera) {
+        throw new Error("MediaPipe library not found on global scope.");
+      }
 
-      const hands = new Hands({
+      const hands = new MP.Hands({
         locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
       });
 
@@ -61,7 +64,7 @@ export default function HandDetector({ onLandmarksDetected }) {
         }
       });
 
-      const camera = new Camera(videoRef.current, {
+      const camera = new MP.Camera(videoRef.current, {
         onFrame: async () => {
           if (videoRef.current) {
             await hands.send({ image: videoRef.current });
