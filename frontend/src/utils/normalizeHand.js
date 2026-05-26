@@ -1,22 +1,26 @@
 /**
- * Normalizes a list of 21 3D hand landmarks.
+ * Normalizes a list of hand landmarks.
  * 
  * 1. Translation: Translates all coordinates relative to the wrist (landmark 0) at (0,0,0).
  * 2. Scaling: Scales all coordinates relative to the distance between wrist (0) and middle finger knuckle (9).
  */
 export function normalizeLandmarks(landmarks) {
-  if (!landmarks || landmarks.length !== 21) return null;
+  // Convert array-like objects to native JS arrays for absolute safety
+  const lmArray = Array.from(landmarks || []);
+  if (lmArray.length < 10 || !lmArray[0] || !lmArray[9]) {
+    return null;
+  }
 
-  const wrist = landmarks[0];
+  const wrist = lmArray[0];
   
   // 1. Translate relative to wrist (index 0)
-  const translated = landmarks.map(lm => ({
+  const translated = lmArray.map(lm => ({
     x: lm.x - wrist.x,
     y: lm.y - wrist.y,
     z: lm.z - wrist.z
   }));
 
-  // 2. Calculate palm size (wrist to middle finger base) as the scale factor
+  // 2. Calculate palm size (wrist to middle finger base, index 9) as the scale factor
   const middleBase = translated[9];
   const scale = Math.sqrt(
     middleBase.x * middleBase.x + 
@@ -26,11 +30,11 @@ export function normalizeLandmarks(landmarks) {
 
   if (scale === 0) return translated;
 
-  // 3. Scale all coordinates relative to palm size
-  return translated.map(lm => ({
-    x: translated.indexOf(lm) === 0 ? 0 : lm.x / scale,
-    y: translated.indexOf(lm) === 0 ? 0 : lm.y / scale,
-    z: translated.indexOf(lm) === 0 ? 0 : lm.z / scale
+  // 3. Scale all coordinates relative to palm size using safe map index parameter
+  return translated.map((lm, idx) => ({
+    x: idx === 0 ? 0 : lm.x / scale,
+    y: idx === 0 ? 0 : lm.y / scale,
+    z: idx === 0 ? 0 : lm.z / scale
   }));
 }
 
@@ -41,39 +45,46 @@ export function normalizeLandmarks(landmarks) {
  * Returns a similarity score between 0.0 and 1.0.
  */
 export function calculateSimilarity(liveNormalized, templateLandmarks) {
-  if (!liveNormalized || !templateLandmarks || liveNormalized.length !== 21 || templateLandmarks.length !== 21) {
+  const live = Array.from(liveNormalized || []);
+  const template = Array.from(templateLandmarks || []);
+
+  if (live.length === 0 || template.length === 0) {
     return 0;
   }
 
-  // Pre-normalize the template to guarantee they are compared on the exact same mathematical scale
-  const templateNormalized = normalizeLandmarks(templateLandmarks);
+  // Pre-normalize the template
+  const templateNormalized = normalizeLandmarks(template);
   if (!templateNormalized) return 0;
 
   let totalDistanceNormal = 0;
   let totalDistanceFlipped = 0;
 
-  for (let i = 0; i < 21; i++) {
-    const live = liveNormalized[i];
-    const template = templateNormalized[i];
+  // Safe length comparison matching up to minimum coordinate size
+  const minLength = Math.min(live.length, templateNormalized.length);
+  if (minLength === 0) return 0;
 
-    // Y coordinate distance remains identical
-    const dy = live.y - template.y;
+  for (let i = 0; i < minLength; i++) {
+    const livePoint = live[i];
+    const templatePoint = templateNormalized[i];
+
+    if (!livePoint || !templatePoint) continue;
+
+    // Y coordinate distance
+    const dy = livePoint.y - templatePoint.y;
 
     // Normal X coordinate distance
-    const dxNormal = live.x - template.x;
+    const dxNormal = livePoint.x - templatePoint.x;
     totalDistanceNormal += Math.sqrt(dxNormal * dxNormal + dy * dy);
 
-    // Horizontally Flipped X coordinate distance (-template.x)
-    // This allows seamless support for both Left & Right hands and browser mirroring!
-    const dxFlipped = live.x - (-template.x);
+    // Horizontally Flipped X coordinate distance (-templatePoint.x)
+    const dxFlipped = livePoint.x - (-templatePoint.x);
     totalDistanceFlipped += Math.sqrt(dxFlipped * dxFlipped + dy * dy);
   }
 
-  // Choose the best match (minimum distance) between normal and mirrored layouts
-  const averageDistance = Math.min(totalDistanceNormal, totalDistanceFlipped) / 21;
+  // Choose the best match (minimum distance)
+  const averageDistance = Math.min(totalDistanceNormal, totalDistanceFlipped) / minLength;
   
   // Convert 2D average distance into a percentage score.
-  // In 2D space, a strong match has an average coordinate deviation under 0.18.
   // Using 0.40 as the max expected 2D distance divisor yields highly responsive, natural results.
   const similarity = Math.max(0, 1 - (averageDistance / 0.40));
   return similarity;
