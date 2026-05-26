@@ -36,7 +36,7 @@ export function normalizeLandmarks(landmarks) {
 
 /**
  * Calculates the average Euclidean distance between two landmark arrays.
- * Pre-normalizes the template to guarantee they are compared on the exact same mathematical scale.
+ * Computes strictly in the 2D Silhouette Plane (x and y axes), ignoring noisy z-depth coordinates.
  * Returns a similarity score between 0.0 and 1.0.
  */
 export function calculateSimilarity(liveNormalized, templateLandmarks) {
@@ -44,7 +44,7 @@ export function calculateSimilarity(liveNormalized, templateLandmarks) {
     return 0;
   }
 
-  // Double-normalize both arrays to ensure identical scaling and origin translation
+  // Pre-normalize the template to guarantee they are compared on the exact same mathematical scale
   const templateNormalized = normalizeLandmarks(templateLandmarks);
   if (!templateNormalized) return 0;
 
@@ -54,18 +54,20 @@ export function calculateSimilarity(liveNormalized, templateLandmarks) {
     const live = liveNormalized[i];
     const template = templateNormalized[i];
 
+    // Compute strictly in the 2D plane (x & y coordinates).
+    // The z coordinate represents depth relative to the wrist, which is highly noisy
+    // and varies wildly based on camera angle and hand tilt.
     const dx = live.x - template.x;
     const dy = live.y - template.y;
-    const dz = live.z - template.z;
 
-    totalDistance += Math.sqrt(dx * dx + dy * dy + dz * dz);
+    totalDistance += Math.sqrt(dx * dx + dy * dy);
   }
 
   const averageDistance = totalDistance / 21;
   
-  // Convert average distance into a percentage score.
-  // High quality matches have an average distance of 0.15 - 0.25.
-  // Using 0.70 as a normalized divisor ensures smooth, natural grading.
-  const similarity = Math.max(0, 1 - (averageDistance / 0.70));
+  // Convert 2D average distance into a percentage score.
+  // In 2D space, a strong match has an average coordinate deviation under 0.18.
+  // Using 0.40 as the max expected 2D distance divisor yields highly responsive, natural results.
+  const similarity = Math.max(0, 1 - (averageDistance / 0.40));
   return similarity;
 }
