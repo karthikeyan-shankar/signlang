@@ -15,6 +15,9 @@ export default function SignClassifier({ landmarks, onSignDetected }) {
 
   // Process landmarks when they are captured
   useEffect(() => {
+    // Console log for developer tools inspection
+    console.log("SignClassifier received landmarks:", landmarks);
+
     if (!landmarks) {
       setCurrentMatch(null);
       setSimilarityScores({});
@@ -25,7 +28,10 @@ export default function SignClassifier({ landmarks, onSignDetected }) {
 
     // 1. Normalize live hand landmarks
     const normalized = normalizeLandmarks(landmarks);
-    if (!normalized) return;
+    if (!normalized) {
+      console.warn("normalizeLandmarks returned null!");
+      return;
+    }
 
     // 2. Compare against every gesture in our ISL Dictionary
     let bestMatchName = "";
@@ -181,6 +187,24 @@ export default function SignClassifier({ landmarks, onSignDetected }) {
             );
           })}
         </div>
+      </div>
+
+      {/* Debug Diagnostics Panel */}
+      <div style={{ 
+        fontSize: '9px', 
+        fontFamily: 'monospace', 
+        color: '#6B7280', 
+        borderTop: '1px solid rgba(255,255,255,0.05)', 
+        paddingTop: '0.5rem', 
+        marginTop: '0.5rem', 
+        textAlign: 'left',
+        lineHeight: '1.4'
+      }}>
+        <p style={{ color: 'var(--accent-blue)', fontWeight: 'bold', marginBottom: '2px' }}>🛠️ Diagnostics Panel:</p>
+        <p>• Props landmarks: {landmarks ? "Active" : "Null/Undefined"}</p>
+        <p>• Is Array: {landmarks && Array.isArray(landmarks) ? "Yes" : "No"}</p>
+        <p>• Landmarks Length: {landmarks ? landmarks.length : "N/A"}</p>
+        <p>• Wrist Coordinate: {landmarks && landmarks[0] ? `x: ${landmarks[0].x.toFixed(3)}, y: ${landmarks[0].y.toFixed(3)}` : "N/A"}</p>
       </div>
     </div>
   );
